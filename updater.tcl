@@ -56,5 +56,5 @@ set resp_data [json::json2dict [http::data $resp_token]]
 if {[dict get $resp_data result] eq {success}} {
 	puts "Port successfully updated"
 } else {
-	"Failed to update port"
+	puts "Failed to update port"
 }
