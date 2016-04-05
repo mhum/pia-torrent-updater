@@ -41,7 +41,7 @@ close $fp
 set client_id $file_data
 
 #Make request
-regexp {inet *(10\.[0-9]+\.[0-9]+\.[0-9]+)} [exec ifconfig $device] -> local_ip
+regexp {inet .*?(10\.[0-9]+\.[0-9]+\.[0-9]+)} [exec ifconfig $device] -> local_ip
 set query [::http::formatQuery user $user pass $pass client_id $client_id \
 		   local_ip $local_ip]
 set resp [json::json2dict [http::data [http::geturl $pia_url -query $query]]]
