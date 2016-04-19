@@ -15,8 +15,16 @@ package require json
 #------------------------------Check Transmission----------------------------------#
 #Fetch CSRF token first
 set resp_token [http::geturl $trans_url]
-set csrf [lindex [http::meta $resp_token] 3]
+set response [http::meta $resp_token]
 http::cleanup $resp_token
+
+set csrf [lindex $response 3]
+
+if {$csrf eq {}} {
+        puts "Error: Unable to retrieve CSRF token"
+        puts "Response Received: $response"
+        return
+}
 
 #Check if port is still open
 set query {{"arguments": {},"method": "port-test"}}
