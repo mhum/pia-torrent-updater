@@ -41,9 +41,13 @@ Once the client id file is created and the configurations set, it is as easy as 
 or make it executable with `chmod u+x updater.tcl` and then run
 `./updater.tcl`
 
-It can also be ran in a debugging mode to troubleshoot issues by adding a flag when running:
-`./updater.tcl --debug true`
-
 ## Scheduling It
 It can even be setup to run as a cron job to completely automate this process. Something such as:
 > @hourly /usr/local/bin/tclsh /scripts/updater.tcl
+
+## Troubleshooting
+If it doesn't work for some reason, the script can ran in a debugging mode by adding a flag when running:
+
+`./updater.tcl --debug true`
+
+The script communicates with Transmission via its RPC API. Specific Transmission RPC configs can be found [here](https://trac.transmissionbt.com/wiki/EditConfigFiles#RPC) and the RPC specs [here](https://trac.transmissionbt.com/browser/trunk/extras/rpc-spec.txt).
