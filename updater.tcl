@@ -111,7 +111,7 @@ if {$CFG(debug)} {
 	puts "DEBUG: Run ifconfig for $device:"
 	puts [exec ifconfig $device]
 }
-regexp {inet .*?(10\.[0-9]+\.[0-9]+\.[0-9]+)} [exec ifconfig $device] -> local_ip
+regexp {inet([\s\w]|[:])+(10\.[0-9]+\.[0-9]+\.[0-9]+)} [exec ifconfig $device] -> space local_ip
 
 if {$CFG(debug)} {
 	puts "DEBUG: Found IP: $local_ip"
