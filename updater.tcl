@@ -62,7 +62,7 @@ http::cleanup $resp_token
 
 set header [lindex $response 2]
 
-if {$auth eq "WWW-Authenticate"} {
+if {$header eq "WWW-Authenticate"} {
 	puts "Error: RPC authentication required"
 	return
 }
