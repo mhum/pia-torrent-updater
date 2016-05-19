@@ -10,38 +10,44 @@ forwarding port. Finally, another remote procedure call is made to Transmission 
 port with the forwarding port sent back by PIA.
 
 ## Requirements
-[Tcl](http://www.tcl.tk/software/tcltk) and [Tcllib](http://www.tcl.tk/software/tcllib) are the only two requirements. They come
-pre-installed on most *nix operating systems.
+[Tcl](http://www.tcl.tk/software/tcltk) and [Tcllib](http://www.tcl.tk/software/tcllib) are the only two requirements. They come pre-installed on most *nix operating systems.
 
-## Configuration
+## Configuring
 All configurations are made at the very top of the file in the `CONFIG` section.
 ```tcl
-set user      USERNAME
-set pass      PASSWORD
-set id_file   CLIENT_ID_FILE
-set pia_url   http://www.privateinternetaccess.com/vpninfo/port_forward_assignment
-set trans_url TRANSMISSION_URL/transmission/rpc
-set device    VPN_DEVICE
+set pia_user       USERNAME
+set pia_pass       PASSWORD
+set id_file        CLIENT_ID_FILE
+set device         VPN_DEVICE
+set trans_rpc_url  TRANSMISSION_URL/transmission/rpc
+set rpc_auth       RPC_TRUE/FALSE
+set rpc_user       RPC_USERNAME
+set rpc_pass       RPC_PASSWORD
+
+set pia_url        http://www.privateinternetaccess.com/vpninfo/port_forward_assignment
 ```
 ```
 USERNAME         ---PIA user name
 PASSWORD         ---PIA password
 CLIENT_ID_FILE   ---Path to file containing client id
-TRANSMISSION_URL ---URL to transmission. If running on same box: http://localhost:9091
 VPN_DEVICE       ---Device name for VPN connection. Usually tun0. Run ifconfig to find out
+TRANSMISSION_URL ---URL to transmission. If running on same box: http://localhost:9091
+RPC_TRUE/FALSE   ---If rpc authenication is enabled for transmission. Set to true or false
+RPC_USERNAME     ---Transmission rpc username
+RPC_PASSWORD     ---Transmission rpc password
 ```
 
-## Running It
-First, we need a file with the unique, constant client id. This will be sent with every request.
+## Running
+First, we need a file with the unique, constant client id. This will be sent with every PIA request.
 > **OS X**:   head -n 100 /dev/urandom | md5 > ~/.pia_client_id
+>
 > **Linux**: head -n 100 /dev/urandom | md5sum | tr -d " -" > ~/.pia_client_id
 
-Once the client id file is created and the configurations set, it is as easy as running:
-`tclsh updater.tcl`
-or make it executable with `chmod u+x updater.tcl` and then run
-`./updater.tcl`
+Once the client id file is created and the configurations set, it is as easy as running: `tclsh updater.tcl`
 
-## Scheduling It
+or make it executable with `chmod u+x updater.tcl` and then run `./updater.tcl`
+
+## Scheduling
 It can even be setup to run as a cron job to completely automate this process. Something such as:
 > @hourly /usr/local/bin/tclsh /scripts/updater.tcl
 

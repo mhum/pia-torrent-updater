@@ -6,9 +6,9 @@ set pia_pass       PASSWORD
 set id_file        CLIENT_ID_FILE
 set device         VPN_DEVICE
 set trans_rpc_url  TRANSMISSION_URL/transmission/rpc
-set rpc_auth       TRUE/FALSE
-set rpc_user       TRANSMISSION_RPC_USERNAME
-set rpc_pass       TRANSMISSION_RPC_PASSWORD
+set rpc_auth       RPC_TRUE/FALSE
+set rpc_user       RPC_USERNAME
+set rpc_pass       RPC_PASSWORD
 
 set pia_url        http://www.privateinternetaccess.com/vpninfo/port_forward_assignment
 #------------------------------END CONFIG------------------------------------------#
@@ -90,6 +90,11 @@ http::cleanup $resp_token
 
 if {$CFG(debug)} {
 	puts "DEBUG: Received: $resp_data"
+}
+
+if {$resp_data eq 1} {
+	puts "Error: RPC authentication failed"
+	return
 }
 
 #Exit if port is still open
