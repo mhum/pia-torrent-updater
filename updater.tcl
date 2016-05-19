@@ -1,14 +1,19 @@
 #!/usr/bin/env tclsh
 
 #------------------------------CONFIG----------------------------------------------#
-set user      USERNAME
-set pass      PASSWORD
-set id_file   CLIENT_ID_FILE
-set pia_url   http://www.privateinternetaccess.com/vpninfo/port_forward_assignment
-set trans_url TRANSMISSION_URL/transmission/rpc
-set device    VPN_DEVICE
+set pia_user       USERNAME
+set pia_pass       PASSWORD
+set id_file        CLIENT_ID_FILE
+set device         VPN_DEVICE
+set trans_rpc_url  TRANSMISSION_URL/transmission/rpc
+set rpc_auth       TRUE/FALSE
+set rpc_user       TRANSMISSION_RPC_USERNAME
+set rpc_pass       TRANSMISSION_RPC_PASSWORD
+
+set pia_url        http://www.privateinternetaccess.com/vpninfo/port_forward_assignment
 #------------------------------END CONFIG------------------------------------------#
 
+package require base64
 package require http
 package require json
 
@@ -35,10 +40,17 @@ foreach {arg value} $argv {
 #------------------------------Check Transmission----------------------------------#
 #Fetch CSRF token first
 if {$CFG(debug)} {
-	puts "DEBUG: Connecting to transmission at: $trans_url"
+	puts "DEBUG: Connecting to transmission at: $trans_rpc_url"
 }
 
-set resp_token [http::geturl $trans_url]
+set headers [list]
+
+if {$rpc_auth} {
+	set auth "Basic [base64::encode $rpc_user:$rpc_pass]"
+	set headers [list Authorization $auth]
+}
+
+set resp_token [http::geturl $trans_rpc_url -headers $headers]
 set response [http::meta $resp_token]
 
 if {$CFG(debug)} {
@@ -48,29 +60,31 @@ if {$CFG(debug)} {
 
 http::cleanup $resp_token
 
-set csrf [lindex $response 3]
+set header [lindex $response 2]
 
-if {$csrf eq {}} {
-	puts "Error: Unable to retrieve CSRF token"
-	puts "Response Received: $response"
+if {$auth eq "WWW-Authenticate"} {
+	puts "Error: RPC authentication required"
 	return
 }
+
+set csrf [lindex $response 3]
 
 if {$CFG(debug)} {
 	puts "DEBUG: Retrieved CSRF token: $csrf"
 }
 
+lappend headers X-Transmission-Session-Id $csrf
+
 #Check if port is still open
 set query {{"arguments": {},"method": "port-test"}}
-set headers "X-Transmission-Session-Id $csrf"
 
 if {$CFG(debug)} {
 	puts "DEBUG: Send query: $query"
 	puts "DEBUG: With headers: $headers"
-	puts "DEBUG: To $trans_url"
+	puts "DEBUG: To $trans_rpc_url"
 }
 
-set resp_token [http::geturl $trans_url -query $query -headers $headers]
+set resp_token [http::geturl $trans_rpc_url -query $query -headers $headers]
 set resp_data [json::json2dict [http::data $resp_token]]
 http::cleanup $resp_token
 
@@ -117,7 +131,7 @@ if {$CFG(debug)} {
 	puts "DEBUG: Found IP: $local_ip"
 }
 
-set query [::http::formatQuery user $user pass $pass client_id $client_id \
+set query [::http::formatQuery user $pia_user pass $pia_pass client_id $client_id \
 		   local_ip $local_ip]
 
 if {$CFG(debug)} {
@@ -137,7 +151,6 @@ puts "Fetched new port: $port"
 
 #------------------------------Update Transmission---------------------------------#
 set query "{\"arguments\": {\"peer-port\":$port},\"method\": \"session-set\"}"
-set headers "X-Transmission-Session-Id $csrf"
 
 if {$CFG(debug)} {
 	puts "DEBUG: Send request to Transmission"
@@ -145,7 +158,7 @@ if {$CFG(debug)} {
 	puts "DEBUG: Headers: $headers"
 }
 
-set resp_token [http::geturl $trans_url -query $query  -headers $headers]
+set resp_token [http::geturl $trans_rpc_url -query $query  -headers $headers]
 set resp_data [json::json2dict [http::data $resp_token]]
 
 if {$CFG(debug)} {
