@@ -15,7 +15,7 @@ proc ::upd::updPia::fetchPort {} {
 	set fp [open $::upd::CFG(id_file) r]
 	set file_data [read $fp]
 	close $fp
-	set client_id $file_data
+	set client_id [string trim $file_data]
 
 	if {$::upd::CFG(debug)} {
 		puts "DEBUG: Client id: $client_id"
