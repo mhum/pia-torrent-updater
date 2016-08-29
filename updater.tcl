@@ -10,7 +10,7 @@ set rpc_auth       RPC_TRUE/FALSE
 set rpc_user       RPC_USERNAME
 set rpc_pass       RPC_PASSWORD
 
-set pia_url        http://www.privateinternetaccess.com/vpninfo/port_forward_assignment
+set pia_url        https://www.privateinternetaccess.com/vpninfo/port_forward_assignment
 #------------------------------END CONFIG------------------------------------------#
 
 set auto_path [linsert $auto_path 0 .]
@@ -23,6 +23,8 @@ namespace eval ::upd:: {
 	foreach cfg $cfgs {
 		set CFG($cfg) [expr $$cfg]
 	}
+
+	set CFG(pia_https) [regexp {^(https:.*)$} $CFG(pia_url)]
 }
 
 package require updPia 1.0
