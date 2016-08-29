@@ -13,18 +13,21 @@ port with the forwarding port sent back by PIA.
 [Tcl](http://www.tcl.tk/software/tcltk) and [Tcllib](http://www.tcl.tk/software/tcllib) are the only two requirements. They come pre-installed on most *nix operating systems.
 
 ## Configuring
-All configurations are made at the very top of the file in the `CONFIG` section.
-```tcl
-set pia_user       USERNAME
-set pia_pass       PASSWORD
-set id_file        CLIENT_ID_FILE
-set device         VPN_DEVICE
-set trans_rpc_url  TRANSMISSION_URL/transmission/rpc
-set rpc_auth       RPC_TRUE/FALSE
-set rpc_user       RPC_USERNAME
-set rpc_pass       RPC_PASSWORD
+Configurations are loaded via a config file. By default, the script looks for a file named `.config` residing in the same directory as the script. The config file location can also be passed as a command like argument:
 
-set pia_url        http://www.privateinternetaccess.com/vpninfo/port_forward_assignment
+`./updater.tcl --config patch/to/config.file`
+
+### Configs
+```
+pia_user       USERNAME
+pia_pass       PASSWORD
+id_file        CLIENT_ID_FILE
+device         VPN_DEVICE
+trans_rpc_url  TRANSMISSION_URL/transmission/rpc
+rpc_auth       TRUE/FALSE
+rpc_user       RPC_USERNAME
+rpc_pass       RPC_PASSWORD
+pia_url        https://www.privateinternetaccess.com/vpninfo/port_forward_assignment
 ```
 ```
 USERNAME         ---PIA user name
@@ -35,6 +38,7 @@ TRANSMISSION_URL ---URL to transmission. If running on same box: http://localhos
 RPC_TRUE/FALSE   ---If rpc authenication is enabled for transmission. Set to true or false
 RPC_USERNAME     ---Transmission rpc username
 RPC_PASSWORD     ---Transmission rpc password
+PIA_URL          ---Url for fetching port from PIA. Can normally be left as is.
 ```
 
 ## Running

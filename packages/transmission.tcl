@@ -29,12 +29,12 @@ proc ::upd::updTransmission::setPort {port} {
 }
 
 proc _fetchCsrf {} {
-	if {$::upd::CFG(debug)} {
-		puts "DEBUG: Connecting to transmission at: $::upd::CFG(trans_rpc_url)"
+	if {$::upd::Utility::CFG(debug)} {
+		puts "DEBUG: Connecting to transmission at: $::upd::Utility::CFG(trans_rpc_url)"
 	}
 
-	if {$::upd::CFG(rpc_auth)} {
-		set auth "Basic [base64::encode $::upd::CFG(rpc_user):$::upd::CFG(rpc_pass)]"
+	if {$::upd::Utility::CFG(rpc_auth)} {
+		set auth "Basic [base64::encode $::upd::Utility::CFG(rpc_user):$::upd::Utility::CFG(rpc_pass)]"
 
 		set ::upd::updTransmission::HEADERS [list Authorization $auth]
 	}
@@ -50,13 +50,13 @@ proc _fetchCsrf {} {
 
 	set csrf [lindex $response 3]
 
-	if {$::upd::CFG(debug)} {
+	if {$::upd::Utility::CFG(debug)} {
 		puts "DEBUG: Retrieved CSRF token: $csrf"
 	}
 
 	lappend ::upd::updTransmission::HEADERS X-Transmission-Session-Id $csrf
 
-	if {$::upd::CFG(debug)} {
+	if {$::upd::Utility::CFG(debug)} {
 		puts "DEBUG: Set headers: $::upd::updTransmission::HEADERS"
 	}
 }
@@ -66,7 +66,7 @@ proc _isPortOpen {} {
 
 	set resp_data [_makeRequest $query "data"]
 
-	if {$::upd::CFG(debug)} {
+	if {$::upd::Utility::CFG(debug)} {
 		puts "DEBUG: Received: $resp_data"
 	}
 
@@ -83,7 +83,7 @@ proc _checkPort {} {
 	#Exit if port is still open
 	set port_open [_isPortOpen]
 
-	if {$::upd::CFG(debug)} {
+	if {$::upd::Utility::CFG(debug)} {
 		puts "DEBUG: Port open: $port_open"
 	}
 
@@ -94,7 +94,7 @@ proc _checkPort {} {
 }
 
 proc _makeRequest {query type} {
-	if {$::upd::CFG(debug)} {
+	if {$::upd::Utility::CFG(debug)} {
 		puts "DEBUG: Send request to Transmission"
 		puts "DEBUG: Query: $query"
 		puts "DEBUG: Headers: $::upd::updTransmission::HEADERS"
@@ -104,14 +104,14 @@ proc _makeRequest {query type} {
 
 	if {$type eq "data"} {
 		set resp_token [http::geturl \
-			$::upd::CFG(trans_rpc_url) \
+			$::upd::Utility::CFG(trans_rpc_url) \
 			-query $query  \
 			-headers $::upd::updTransmission::HEADERS \
 		]
 		set resp_data [json::json2dict [http::data $resp_token]]
 	} elseif {$type eq "meta"} {
 		set resp_token [http::geturl \
-			$::upd::CFG(trans_rpc_url) \
+			$::upd::Utility::CFG(trans_rpc_url) \
 			-headers $::upd::updTransmission::HEADERS \
 		]
 
@@ -120,7 +120,7 @@ proc _makeRequest {query type} {
 
 	http::cleanup $resp_token
 
-	if {$::upd::CFG(debug)} {
+	if {$::upd::Utility::CFG(debug)} {
 		puts "DEBUG: Response:"
 		puts "DEBUG: $resp_data"
 	}
