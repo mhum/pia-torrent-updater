@@ -1,6 +1,7 @@
 package provide updPia 1.0
 
 package require http
+package require tls
 
 namespace eval ::upd::updPia:: {
 	namespace export checkPort
@@ -44,7 +45,15 @@ proc ::upd::updPia::fetchPort {} {
 		puts "DEBUG: Sending to: $::upd::CFG(pia_url)"
 	}
 
+	if {$::upd::CFG(pia_https)} {
+		http::register https 443 [list ::tls::socket -tls1 1]
+	}
+
 	set resp [json::json2dict [http::data [http::geturl $::upd::CFG(pia_url) -query $query]]]
+
+	if {$::upd::CFG(pia_https)} {
+		http::unregister https
+	}
 
 	if {$::upd::CFG(debug)} {
 		puts "DEBUG: Response:"
