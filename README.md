@@ -28,6 +28,7 @@ rpc_auth       TRUE/FALSE
 rpc_user       RPC_USERNAME
 rpc_pass       RPC_PASSWORD
 pia_url        https://www.privateinternetaccess.com/vpninfo/port_forward_assignment
+check_port     1
 ```
 ```
 USERNAME         ---PIA user name
@@ -39,6 +40,7 @@ RPC_TRUE/FALSE   ---If rpc authenication is enabled for transmission. Set to tru
 RPC_USERNAME     ---Transmission rpc username
 RPC_PASSWORD     ---Transmission rpc password
 PIA_URL          ---Url for fetching port from PIA. Can normally be left as is.
+CHECK_PORT       ---OPTIONAL. Can be used to disable Transmission port checking to just always update port
 ```
 
 ## Running

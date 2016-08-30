@@ -12,6 +12,11 @@ namespace eval ::upd::updTransmission:: {
 
 proc ::upd::updTransmission::checkPort {} {
 	_fetchCsrf
+
+	if {!$::upd::Utility::CFG(port_check)} {
+		puts "Skipping port check"
+		return
+	}
 	_checkPort
 	puts "Port is no longer open. Let's continue!"
 }
@@ -30,7 +35,7 @@ proc ::upd::updTransmission::setPort {port} {
 
 proc _fetchCsrf {} {
 	if {$::upd::Utility::CFG(debug)} {
-		puts "DEBUG: Connecting to transmission at: $::upd::Utility::CFG(trans_rpc_url)"
+		puts "DEBUG: Fetch CSRF"
 	}
 
 	if {$::upd::Utility::CFG(rpc_auth)} {
@@ -75,8 +80,26 @@ proc _isPortOpen {} {
 		exit
 	}
 
+	set arguments [dict get $resp_data arguments]
+	set result    [dict get $resp_data result]
+
+	# Return port not open if we get a response, but something went wrong
+	if {$result != "success"} {
+		puts "WARNING: Something went wrong with Transmission port check:"
+		puts "$result"
+		puts "WARNING: Updating Transmission port regardless...."
+		return 0
+	}
+
 	#Exit if port is still open
-	return [dict get [dict get $resp_data arguments] port-is-open]
+	if {[dict exists $arguments port-is-open]} {
+		return [dict get $arguments port-is-open]
+	}
+
+	puts "WARNING: Something has gone completely wrong."
+	puts "$resp_data"
+	puts "WARNING: Update Transmission port regardless...."
+	return 0
 }
 
 proc _checkPort {} {
@@ -94,8 +117,11 @@ proc _checkPort {} {
 }
 
 proc _makeRequest {query type} {
+	set resp_data    {}
+	set trans_rpc_url $::upd::Utility::CFG(trans_rpc_url)
+
 	if {$::upd::Utility::CFG(debug)} {
-		puts "DEBUG: Send request to Transmission"
+		puts "DEBUG: Send request to Transmission - $trans_rpc_url"
 		puts "DEBUG: Query: $query"
 		puts "DEBUG: Headers: $::upd::updTransmission::HEADERS"
 	}
@@ -104,14 +130,14 @@ proc _makeRequest {query type} {
 
 	if {$type eq "data"} {
 		set resp_token [http::geturl \
-			$::upd::Utility::CFG(trans_rpc_url) \
+			$trans_rpc_url \
 			-query $query  \
 			-headers $::upd::updTransmission::HEADERS \
 		]
 		set resp_data [json::json2dict [http::data $resp_token]]
 	} elseif {$type eq "meta"} {
 		set resp_token [http::geturl \
-			$::upd::Utility::CFG(trans_rpc_url) \
+			$trans_rpc_url \
 			-headers $::upd::updTransmission::HEADERS \
 		]
 
