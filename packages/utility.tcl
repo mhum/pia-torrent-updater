@@ -9,9 +9,10 @@ namespace eval ::upd::Utility:: {
 proc ::upd::Utility::processCmdInputs {args num} {
 	variable CFG
 
-	set CFG(configs) [list debug config]
-	set CFG(debug)   false
-	set CFG(config)  {}
+	set CFG(configs) [list debug config port_check]
+	set CFG(debug)      false
+	set CFG(config)     {}
+	set CFG(port_check) 1
 
 	if {[expr {$num % 2}] != 0} {
 		puts "Invalid configs. Must provide config and value. Allowed configs are: $CFG(configs)"
